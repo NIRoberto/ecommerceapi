@@ -1,12 +1,29 @@
-import Product from "Product";
-import catchAsync from "../utils/catchAsync";
+import mongoose from "mongoose";
 
-export const createProduct = catchAsync(async (req, res) => {
-  const product = await Product.create(req.body);
-
-  res.status(201).json({
-    status: "success",
-    message: "Product created success",
-    product,
-  });
+const productSchema = new mongoose.Schema({
+  productName: {
+    type: String,
+    required: [true, "Product name field is required"],
+  },
+  image: {
+    type: String,
+    required: [true, "Image  is required"],
+  },
+  productCategory: {
+    type: String,
+    required: [true, "Product category field is required"],
+  },
+  productPrice: {
+    type: String,
+    required: [true, "Price of product is field is required"],
+  },
+  productDescription: {
+    type: String,
+    required: [true, "Description of product is required"],
+  },
+  vendorId: {
+    type: String,
+  },
 });
+const product = mongoose.model("Product", productSchema);
+export default product;

@@ -25,7 +25,12 @@ export const signup = catchAsync(async (req, res, next) => {
   if (user) {
     return next(new AppError("User already exists", 409));
   }
-  const newUser = await User.create(req.body);
+
+  if (req.body.roleId == 2 && (!req.body.phone || !req.body.shopName)) {
+    return next(new AppError("Please provide phone and shopName", 400));
+  }
+
+  let newUser = await User.create(req.body);
 
   const token = await signToken(newUser);
 
@@ -37,13 +42,13 @@ export const signup = catchAsync(async (req, res, next) => {
   });
 });
 export const login = catchAsync(async (req, res, next) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!username || !password) {
-    return next(new AppError("Please provide username and password", 400));
+  if (!email || !password) {
+    return next(new AppError("Please provide email and password", 400));
   }
 
-  const user = await User.findOne({ username }).select("+password");
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect username or password", 401));
@@ -59,12 +64,55 @@ export const login = catchAsync(async (req, res, next) => {
   });
 });
 
-
 export const deleteAllUsers = catchAsync(async (req, res, next) => {
-     
-  const  s =  await User.deleteMany();
+  const s = await User.deleteMany();
   res.status(200).json({
-    status:"success",
-    message:"all users deleted"
-  })
-})
+    status: "success",
+    message: "all users deleted",
+  });
+});
+
+export const deleteOneUser = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+  res.status(200).json({
+    status: "success",
+    message: "user deleted",
+  });
+});
+
+export const updateOneUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  const newUserData = await User.findByIdAndUpdate(
+    req.params.id,
+    {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      password: req.body.password,
+      phone: req.body.phone,
+      shopName: req.body.shopName,
+      roleId: req.body.roleId,
+    },
+    { new: true }
+  );
+  
+});
+
+export const getOneUser = catchAsync(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+  res.status(200).json({
+    status: "success",
+    user,
+  });
+});

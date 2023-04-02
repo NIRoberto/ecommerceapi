@@ -3,9 +3,13 @@ import bcrypt from "bcryptjs";
 import validator from "validator";
 
 const userSchema = new mongoose.Schema({
-  username: {
+  firstName: {
     type: String,
-    required: [true, "Name field is required"],
+    required: [true, "first name field is required"],
+  },
+  lastName: {
+    type: String,
+    required: [true, "last name field is required"],
   },
   email: {
     type: String,
@@ -14,6 +18,11 @@ const userSchema = new mongoose.Schema({
     lowercase: true,
     validate: [validator.isEmail, "Please enter a valid email"],
   },
+  profile: {
+    type: String,
+    default:
+      "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
+  },
   password: {
     type: String,
     required: [true, "password field is required"],
@@ -21,11 +30,16 @@ const userSchema = new mongoose.Schema({
     maxLength: 12,
     select: false,
   },
-
-  role: {
+  shopName: {
     type: String,
-    enum: ["user", "admin"],
-    default: "user",
+  },
+  phone: {
+    type: String,
+  },
+  roleId: {
+    type: Number,
+    enum: [1, 2, 3],
+    default: 3,
   },
 });
 

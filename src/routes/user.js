@@ -4,13 +4,17 @@ import {
   signup,
   getAll,
   deleteAllUsers,
+  updateOneUser,
+  getOneUser,
 } from "../controllers/usersController";
 
 const router = express.Router();
 
-router.get("/users", getAll);
-router.post("/user/login", login);
-router.post("/user/register", signup);
-router.delete("/users/deleteAll", deleteAllUsers);
+router.get("/", getAll);
+router.post("/login", login);
+router.post("/register", signup);
+router.delete("/deleteAll", deleteAllUsers);
+router.get("/:id", getOneUser);
+router.put("/:id", updateOneUser);
 
 export default router;

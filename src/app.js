@@ -2,14 +2,14 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import userRoute from "./routes/user";
-import multer from "multer";
+import productRoute from "./routes/product";
 import AppError from "./utils/appError";
-import globarErrorHandle from "./controllers/errorController";
+import globalErrorHandle from "./controllers/errorController";
+import upload from "./helpers/multer";
 const app = express();
-const upload = multer({ dest: "image" });
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(upload.any());
+app.use(upload.single("image"));
 app.use(cors());
 app.use(morgan("dev"));
 
@@ -19,11 +19,12 @@ app.get("/", (req, res) => {
   });
 });
 
-app.use("/api/v1", userRoute);
+app.use("/api/zeus/users", userRoute);
+app.use("/api/zeus/products", productRoute);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`can't find ${req.originalUrl} on this server`, 404));
 });
-app.use(globarErrorHandle);
+app.use(globalErrorHandle);
 
 export default app;
