@@ -24,6 +24,9 @@ const productSchema = new mongoose.Schema({
   vendorId: {
     type: String,
   },
+  phone:{
+    type: String,
+  }
 });
 const product = mongoose.model("Product", productSchema);
 export default product;

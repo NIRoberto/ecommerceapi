@@ -1,5 +1,6 @@
 import { uploadToCloud } from "../helpers/cloud";
 import Product from "../model/Product";
+import Category from "../model/Category";
 import AppError from "../utils/appError";
 import catchAsync from "../utils/catchAsync";
 
@@ -9,7 +10,12 @@ export const createProduct = catchAsync(async (req, res, next) => {
     return next(new AppError("Please upload an image", 400));
   }
   const result = await uploadToCloud(req.file, res);
-
+  const cat = await Category.findOne({
+    categoryName: req.body.productCategory,
+  });
+  if (!cat) {
+    return next(new AppError("Category not found", 404));
+  }
   const product = await Product.create({
     image: result
       ? result.secure_url

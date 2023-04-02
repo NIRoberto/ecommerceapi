@@ -23,6 +23,14 @@ const userSchema = new mongoose.Schema({
     default:
       "https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png",
   },
+  status: {
+    type: String,
+    enum: ["approved", "pending", "rejected"],
+    default: "pending",
+  },
+  idNumber: {
+    type: Number,
+  },
   password: {
     type: String,
     required: [true, "password field is required"],
@@ -31,6 +39,12 @@ const userSchema = new mongoose.Schema({
     select: false,
   },
   shopName: {
+    type: String,
+  },
+  shopDescription: {
+    type: String,
+  },
+  shopAddress: {
     type: String,
   },
   phone: {
@@ -42,7 +56,6 @@ const userSchema = new mongoose.Schema({
     default: 3,
   },
 });
-
 userSchema.pre("save", async function (next) {
   const user = this;
   if (!user.isModified("password")) return next();

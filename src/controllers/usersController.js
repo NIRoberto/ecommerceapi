@@ -1,4 +1,5 @@
 import User from "../model/User";
+import Product from "../model/Product";
 import AppError from "../utils/appError";
 import jwt from "jsonwebtoken";
 import catchAsync from "../utils/catchAsync";
@@ -21,16 +22,38 @@ export const getAll = catchAsync(async (req, res, next) => {
 
 export const signup = catchAsync(async (req, res, next) => {
   const user = await User.findOne({ email: req.body.email });
-
+  console.log(req.body);
   if (user) {
     return next(new AppError("User already exists", 409));
   }
-
-  if (req.body.roleId == 2 && (!req.body.phone || !req.body.shopName)) {
-    return next(new AppError("Please provide phone and shopName", 400));
+  if (
+    req.body.roleId == 2 &&
+    (!req.body.phone ||
+      !req.body.shopName ||
+      !req.body.shopDescription ||
+      !req.body.shopAddress ||
+      !req.body.idNumber)
+  ) {
+    return next(
+      new AppError(
+        "Please provide phone, shopName, id number, shop description ,shop address",
+        400
+      )
+    );
   }
 
-  let newUser = await User.create(req.body);
+  let newUser = await User.create({
+    firstName: req.body.firstName,
+    lastName: req.body.lastName,
+    email: req.body.email,
+    password: req.body.password,
+    roleId: req.body.roleId,
+    phone: req.body.phone,
+    shopName: req.body.shopName,
+    shopAddress: req.body.shopAddress,
+    shopDescription: req.body.shopDescription,
+    idNumber: req.body.idNumber,
+  });
 
   const token = await signToken(newUser);
 
@@ -77,6 +100,9 @@ export const deleteOneUser = catchAsync(async (req, res, next) => {
   if (!user) {
     return next(new AppError("User not found", 404));
   }
+  if (user.roleId == 2) {
+    await Product.deleteMany({ vendorId: req.params.id });
+  }
   res.status(200).json({
     status: "success",
     message: "user deleted",
@@ -103,7 +129,11 @@ export const updateOneUser = catchAsync(async (req, res, next) => {
     },
     { new: true }
   );
-  
+  res.status(200).json({
+    status: "success",
+    message: "user updated",
+    newUserData,
+  });
 });
 
 export const getOneUser = catchAsync(async (req, res, next) => {
@@ -114,5 +144,30 @@ export const getOneUser = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     user,
+  });
+});
+
+export const changeStatusUserToVendor = catchAsync(async (req, res, next) => {
+  const user = await User.findByIdAndUpdate(req.params.id, {
+    roleId: 2,
+    status: req.body.status,
+  });
+  if (!user) {
+    return next(new AppError("User not found", 404));
+  }
+
+  return res.status(200).json({
+    status: "success",
+    message: "user status changed to vendor",
+  });
+});
+
+export const getVendors = catchAsync(async (req, res, next) => {
+  const vendors = await User.find({ roleId: 2 });
+
+  res.status(200).json({
+    status: "success",
+    size: vendors.length,
+    vendors,
   });
 });

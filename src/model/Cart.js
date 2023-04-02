@@ -15,6 +15,6 @@ const cartSchema = new mongoose.Schema({
   },
 });
 
-const user = mongoose.model("Product", cartSchema);
+const user = mongoose.model("Cart", cartSchema);
 
 export default user;
